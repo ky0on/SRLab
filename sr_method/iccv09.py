@@ -7,7 +7,7 @@ from sr_dataset import SRDataSet
 from sr_util import sr_image_util
 
 DEFAULT_RECONSTRUCT_LEVEL = 6
-ALPHA = 2 ** (1.0/3)
+ALPHA = 2 ** (1.0/5)
 
 class ICCV09(object):
 
@@ -32,16 +32,16 @@ class ICCV09(object):
         sr_dataset = SRDataSet.from_sr_image(sr_image)
         reconstructed_sr_image = sr_image
         construct_level = int(math.log(ratio, ALPHA) + 0.5)
+        print 'construct_level:', construct_level
         r = ALPHA
         for level in range(construct_level):
             reconstructed_sr_image = self._reconstruct(r, reconstructed_sr_image, sr_dataset)
+            print 'size:', reconstructed_sr_image.size,
             reconstructed_sr_image = sr_image_util.back_project(reconstructed_sr_image, sr_image,
                                                                 3, level+1)
             new_sr_dataset = SRDataSet.from_sr_image(reconstructed_sr_image)
             sr_dataset.merge(new_sr_dataset)
-            sys.stdout.write("\rReconstructing %.2f%%" % (float(level+1) /
-                                                          construct_level * 100))
-            sys.stdout.flush()
+            print "Reconstructing %.2f%%" % (float(level+1) / construct_level * 100)
         return reconstructed_sr_image
 
     def _reconstruct(self, ratio, sr_image, sr_dataset):
